@@ -5,6 +5,8 @@ import obspython as obs
 from pythonosc import udp_client
 from pythonosc import osc_message_builder
 from pythonosc import osc_bundle_builder
+from pythonosc.osc_bundle import OscBundle
+from pythonosc.osc_message import OscMessage
 
 verbose = False
 config_path = ""
@@ -57,7 +59,7 @@ def parse_config():
     try:
         host = config_dict["HOST"]
         port = config_dict["PORT"]
-        osc_client = udp_client.SimpleUDPClient(host, port)
+        osc_client = udp_client.UDPClient(host, port)
     except Exception as e:
         print("ERROR: Invalid host/port config")
         print("Failed with exception", e)
@@ -170,15 +172,33 @@ def script_update(settings):
         load_config()
 
 
+def send_bundle_or_message(bundle):
+    global osc_client
+
+    if config_dict["SEND_BUNDLES_AS_MESSAGES"] and isinstance(bundle, OscBundle):
+        for item in bundle:
+            send_bundle_or_message(item)
+    else:
+        if verbose and isinstance(bundle, OscMessage):
+            print("Sending", bundle.address, bundle.params)
+        osc_client.send(bundle)
+
+
 def source_activated(calldata):
     global verbose
+    global config_valid
+    global sources
+    global messages_and_bundles
 
     if config_valid:
         source = obs.calldata_source(calldata, "source")
         if source is not None:
             source_name =  obs.obs_source_get_name(source)
-            if verbose:
-                print("Source \"" + source_name + "\" activated.")
+            if source_name in sources:
+                msg = sources[source_name]
+                if verbose:
+                    print("Source \"" + source_name + "\" activated. Sending the message/bundle \"" + msg + "\".")
+                send_bundle_or_message(messages_and_bundles[msg])
 
 
 def disconnect_handler():
