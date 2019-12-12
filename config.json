@@ -1,0 +1,43 @@
+{
+  "HOST" : "10.0.0.100",
+  "PORT" : 10024,
+  "ADDRESSES" : {
+    "aCast1" : "/ch/01/mix/on",
+    "aCast2" : "/ch/02/mix/on"
+  },
+  "MESSAGES" : {
+    "mCast1_ON" : {
+      "ADDRESS" : "aCast1",
+      "ARGUMENTS" : [1]
+    },
+    "mCast1_OFF" : {
+      "ADDRESS" : "aCast1",
+      "ARGUMENTS" : [0]
+    },
+    "mCast2_ON" : {
+      "ADDRESS" : "aCast2",
+      "ARGUMENTS" : [1]
+    },
+    "mCast2_OFF" : {
+      "ADDRESS" : "aCast2",
+      "ARGUMENTS" : [0]
+    }
+  },
+  "BUNDLES" : {
+    "bCasters_ON" : [
+      "mCast1_ON",
+      "mCast2_ON"
+    ],
+    "bCasters_OFF" : [
+      "mCast1_OFF",
+      "mCast2_OFF"
+    ]
+  },
+  "SOURCES" : {
+    "OSC-trigger-cast" : "bCasters_ON",
+    "OSC-trigger-break" : "bCasters_OFF",
+    "OSC-trigger-cast1-on" : "mCast1_ON",
+    "OSC-trigger-cast1-off" : "mCast1_OFF"
+  },
+  "SEND_BUNDLES_AS_MESSAGES" : true
+}
